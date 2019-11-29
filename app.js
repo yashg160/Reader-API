@@ -4,19 +4,23 @@ var path = require('path');
 var morgan = require('morgan');
 var session = require('express-session');
 
+const indexRouter = require('./routes/indexRouter');
+const usersRouter = require('./routes/usersRouter');
+const blogRouter = require('./routes/blogRouter');
+
 
 var app = express();
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
-app.use(morgan('combined'));
+//app.use(morgan('combined'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 //Routes defined
 app.use('/', indexRouter);
-app.use('/users', userRouter);
+app.use('/users', usersRouter);
 app.use('/blog', blogRouter);
 
 
