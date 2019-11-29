@@ -7,10 +7,21 @@ var session = require('express-session');
 
 var app = express();
 
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'pug');
+
 app.use(morgan('combined'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+
+//Routes defined
+app.use('/', indexRouter);
+app.use('/users', userRouter);
+app.use('/blog', blogRouter);
 
 
 
+//If no route matches, then display a 404 not found error.
 app.use(function (req, res, next) {
     next(createError(404));
 });
