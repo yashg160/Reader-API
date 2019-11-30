@@ -5,7 +5,7 @@ const mysql = require('mysql');
 
 
 
-const port = 3000;
+const port = 3001;
 
 app.set('port', port);
 app.set('secPort', port + 443);
@@ -14,7 +14,7 @@ const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
     password: 'root_password',
-    database: 'college'
+    database: 'reader'
 });
 
 db.connect((err) => {
