@@ -11,6 +11,7 @@ usersRouter.route('/')
         console.log(query);
         db.query(query, (error, results, fields) => {
             console.log(results);
+            res.status(200).send({ done: 'success'});
         });
     })
     .post((req, res, next) => {
@@ -19,17 +20,23 @@ usersRouter.route('/')
         const query = `INSERT INTO users (email, password) VALUES ('${req.body.email}', '${req.body.password}');`;
         console.log(query);
         
-        let response = null;
         db.query(query, (error, results, fields) => {
             if (error) {
                 console.error(error);
-                response = error;
+                res.status(406);
+                res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+                res.setHeader('Content-Type', 'application/json');
+                res.setHeader('Access-Control-Allow-Origin', '*');
+                return res.send({ error: true, errorMessage: 'ERR_DUP_ENTRY', userCreated: false, email: req.body.email, password: req.body.password });
             }
-            console.log(results);
-            res.statusCode = 200;
-            res.set('Content-Type', 'application/json');
-            res.set('Access-Control-Allow-Origin', '*');
-            res.send({ done: 'success' });
+            else {
+                console.log(results);
+                res.status(200);
+                res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+                res.setHeader('Content-Type', 'application/json');
+                res.setHeader('Access-Control-Allow-Origin', '*');
+                return res.send({ error: false, errorMessage: 'ERR_NONE', userCreated: true, email: req.body.email, password: req.body.password });
+            }
         });
     })
 
