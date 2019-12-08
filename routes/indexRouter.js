@@ -7,7 +7,7 @@ indexRouter.use(bodyParser.json());
 indexRouter.route('/')
     .get((req, res, next) => {
         res.statusCode = 200;
-        res.json({ name: 'Yash Gupta', age: 20 });
+        res.send('Congratulation. Server is running!');
     });
 
 module.exports = indexRouter;
