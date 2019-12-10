@@ -35,50 +35,113 @@ async function getUser(query) {
     });
 }
 
+async function updateUser(body) {
+    return new Promise(resolve => {
+        console.log(body);
+        const { id, name, about } = body;
+
+        //Split the first name and last name
+        const nameSplit = name.split(' ');
+        const firstName = nameSplit[0];
+        const lastName = nameSplit[1];
+
+        const user = User.update({
+            firstName: firstName,
+            lastName: lastName,
+            about: about,
+            updatedAt: new Date()
+        }, {
+            where: {id: id}
+        });
+        resolve(user);
+    })
+}
+
 usersRouter.route('/')
     .get((req, res, next) => {
-        console.log(req.query);
 
         getUser(req.query)
             .then(users => {
-                console.log(users);
                 if (users.length > 1) {
-                    res.status(200).send({ error: true, errorMessage: 'ERR_DUP_ACC', userExists: true, email: req.query.email, password: req.query.password});
+                    res.status(200).send({ error: true, errorMessage: 'ERR_DUP_ACC', userExists: true, email: req.query.email, password: req.query.password });
                 }
-                else if(users.length < 1) {
-                    res.status(200).send({ error: true, errorMessage: 'ERR_USER_EXISTS', userExists: false, email: req.query.email, password: req.query.password});
+                else if (users.length < 1) {
+                    res.status(200).send({ error: true, errorMessage: 'ERR_USER_EXISTS', userExists: false, email: req.query.email, password: req.query.password });
                     
                 }
-                else if(users.length == 1){
+                else if (users.length == 1) {
                     if (users[0].dataValues.password === req.query.password) {
+
+                        userData = users[0].dataValues;
+
                         res.status(200)
-                            .cookie('userEmail', req.query.email, { maxAge: 60 * 60 * 24 * 5 })
-                            .cookie('userPassword', req.query.password, { maxAge: 60 * 60 * 24 * 5 })
-                            .cookie('userAuthenticated', true, { maxAge: 60 * 60 * 24 * 5 })
-                            .send({ error: false, errorMessage: 'ERR_NONE', userExists: true, email: req.query.email, password: req.query.password });
+                            .send({
+                                error: false,
+                                errorMessage: 'ERR_NONE',
+                                userExists: true,
+                                user: {
+                                    email: userData.email,
+                                    password: userData.password,
+                                    id: userData.id,
+                                    authenticated: true
+                            }});
                     }
                     else
-                        res.status(403).send({ error: true, errorMessage: 'ERR_PASSWORD', userExists: true, email: req.query.email, password: req.query.password});
+                        res.status(200).send({ error: true, errorMessage: 'ERR_PASSWORD', userExists: true, email: req.query.email, password: req.query.password });
                 }
             })
             .catch(error => {
                 console.log(error);
-                res.status(400).send({ error: true, errorMessage: 'ERR_SOME', userExists: false, email: req.query.email, password: req.query.password})
+                res.status(400).send({ error: true, errorMessage: 'ERR_SOME', userExists: false, email: req.query.email, password: req.query.password })
+            });
+    })
+    .put((req, res, next) => {
+        console.log(req.body);
+
+        updateUser(req.body)
+            .then(rowsUpdated => {
+                
+                res.status(200)
+                    .send({
+                        error: false,
+                        errorMessage: 'ERR_NONE',
+                        userUpdated: true
+                    });
+            })
+            .catch(error => {
+                console.log(error);
+                res.status(200)
+                    .send({ error: true, errorMessage: 'ERR_UPDATE', userUpdated: false });
             });
     })
     .post((req, res, next) => {
-        console.log(req.body);
 
         createUser(req.body)
             .then((user) => {
-                console.log(user);
-                const token = authenticate.getToken(user.dataValues);
-                res.status(200).send({ error: false, errorMessage: 'ERR_NONE', userCreated: true, email: req.body.email, password: req.body.password, token: token });
+                const userData = user.dataValues;
+
+                res.status(200)
+                    .send({
+                        error: false,
+                        errorMessage: 'ERR_NONE',
+                        userCreated: true,
+                        user: {
+                            id: userData.id,
+                            email: userData.email,
+                            password: userData.password,
+                            authenticated: true
+                        }
+                    });
             })
             .catch(error => {
                 console.log(error);
-                res.status(406).send({ error: true, errorMessage: 'ERR_DUP_ENTRY', userCreated: false, email: req.body.email, password: req.body.password, token:null });
+                res.status(406).send({ error: true, errorMessage: 'ERR_DUP_ENTRY', userCreated: false, email: req.body.email, password: req.body.password});
             });
-    })
+    });
 
+usersRouter.route('/logout')
+    .get((req, res, next) => {
+        res.send({ loggedOut: true, error: false, errorMessage: 'ERR_NONE' })
+
+    });
 module.exports = usersRouter;
