@@ -11,53 +11,58 @@ const sequelize = new Sequelize({
 class Entertainment extends Model { }
 
 Entertainment.init({
-    id: {
+    blogblogId: {
         type: Sequelize.STRING,
         allowNull: false,
         unique: true
     }
 }, {
-    sequelize,
+        sequelize,
+        freezeTableName: true,
     modelName: 'entertainment'
 });
 
 class Faishon extends Model { }
 
 Faishon.init({
-    id: {
+    blogId: {
         type: Sequelize.STRING,
         allowNull: false,
         unique: true
     }
 }, {
-    sequelize,
+        sequelize,
+        freezeTableName: true,
     modelName: 'faishon'
 });
 
 class Fitness extends Model { }
 
 Fitness.init({
-    id: {
+    blogId: {
         type: Sequelize.STRING,
         allowNull: false,
         unique: true
     }
 }, {
-    sequelize,
+        sequelize,
+    freezeTableName: true,
     modelName: 'fitness'
 });
 
 class PersonalFinance extends Model { }
 
 PersonalFinance.init({
-    id: {
+    blogId: {
         type: Sequelize.STRING,
         allowNull: false,
         unique: true
     }
 }, {
-    sequelize,
-    modelName: 'personalFinance'
+        sequelize,
+        freezeTableName: true,
+        modelName: 'personalFinance'
 });
 
-export default {Entertainment, Faishon, Fitness, PersonalFinance}
+const Choices = { Entertainment, Faishon, Fitness, PersonalFinance };
+module.exports = Choices;

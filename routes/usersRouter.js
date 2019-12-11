@@ -38,7 +38,7 @@ async function getUser(query) {
 async function updateUser(body) {
     return new Promise(resolve => {
         console.log(body);
-        const { id, name, about } = body;
+        const { id, name, about, choices } = body;
 
         //Split the first name and last name
         const nameSplit = name.split(' ');
@@ -49,6 +49,7 @@ async function updateUser(body) {
             firstName: firstName,
             lastName: lastName,
             about: about,
+            choices: choices,
             updatedAt: new Date()
         }, {
             where: {id: id}
@@ -96,11 +97,10 @@ usersRouter.route('/')
             });
     })
     .put((req, res, next) => {
-        console.log(req.body);
 
         updateUser(req.body)
             .then(rowsUpdated => {
-                
+
                 res.status(200)
                     .send({
                         error: false,
