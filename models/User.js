@@ -46,9 +46,9 @@ class User extends Model {
 
 User.init({
     id: {
-        type: Sequelize.STRING,
+        type: Sequelize.INTEGER,
         primaryKey: true,
-        allowNull: false,
+        autoIncrement: true
     },
     firstName: {
         type: Sequelize.STRING
