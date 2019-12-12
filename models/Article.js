@@ -8,9 +8,9 @@ const sequelize = new Sequelize({
     password: 'root_password'
 });
 
-class Blog extends Model { }
+class Article extends Model { }
 
-Blog.init({
+Article.init({
     id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
@@ -33,7 +33,7 @@ Blog.init({
     }
 }, {
     sequelize,
-    modelName: 'blog'
+    modelName: 'article'
 });
 
-module.exports = Blog;
+module.exports = Article;

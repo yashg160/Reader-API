@@ -11,7 +11,7 @@ var cookieParser = require('cookie-parser');
 
 const indexRouter = require('./routes/indexRouter');
 const usersRouter = require('./routes/usersRouter');
-const blogRouter = require('./routes/blogRouter');
+const articleRouter = require('./routes/articleRouter');
 
 
 var app = express();
@@ -32,7 +32,7 @@ app.use(passpport.initialize());
 //Routes defined
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-app.use('/blog', blogRouter);
+app.use('/article', articleRouter);
 
 
 

@@ -10,7 +10,6 @@ usersRouter.use(bodyParser.json());
 
 async function createUser(body){
     return new Promise(resolve => {
-        const id = crypto.randomBytes(10).toString('hex');
         const user = User.create({
             email: body.email,
             password: body.password,
