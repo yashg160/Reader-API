@@ -19,7 +19,7 @@ Entertainment.init({
 }, {
         sequelize,
         freezeTableName: true,
-    modelName: 'entertainment'
+        modelName: 'entertainment'
 });
 
 class Faishon extends Model { }
@@ -50,9 +50,9 @@ Fitness.init({
     modelName: 'fitness'
 });
 
-class PersonalFinance extends Model { }
+class Finance extends Model { }
 
-PersonalFinance.init({
+Finance.init({
     blogId: {
         type: Sequelize.STRING,
         allowNull: false,
@@ -61,8 +61,8 @@ PersonalFinance.init({
 }, {
         sequelize,
         freezeTableName: true,
-        modelName: 'personalFinance'
+        modelName: 'finance'
 });
 
-const Choices = { Entertainment, Faishon, Fitness, PersonalFinance };
+const Choices = { Entertainment, Faishon, Fitness, Finance };
 module.exports = Choices;
