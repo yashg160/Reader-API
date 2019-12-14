@@ -56,7 +56,7 @@ async function updateUser(body) {
     })
 }
 
-usersRouter.route('/')
+usersRouter.route('/signin')
     .get((req, res, next) => {
 
         getUser(req.query)
@@ -83,7 +83,8 @@ usersRouter.route('/')
                                     password: userData.password,
                                     id: userData.id,
                                     authenticated: true
-                            }});
+                                }
+                            });
                     }
                     else
                         res.status(200).send({ error: true, errorMessage: 'ERR_PASSWORD', userExists: true, email: req.query.email, password: req.query.password });
@@ -93,7 +94,9 @@ usersRouter.route('/')
                 console.log(error);
                 res.status(400).send({ error: true, errorMessage: 'ERR_SOME', userExists: false, email: req.query.email, password: req.query.password })
             });
-    })
+    });
+    
+usersRouter.route('/update')
     .put((req, res, next) => {
 
         updateUser(req.body)
@@ -111,7 +114,9 @@ usersRouter.route('/')
                 res.status(200)
                     .send({ error: true, errorMessage: 'ERR_UPDATE', userUpdated: false });
             });
-    })
+    });
+
+usersRouter.route('/signup')
     .post((req, res, next) => {
 
         createUser(req.body)
@@ -133,13 +138,16 @@ usersRouter.route('/')
             })
             .catch(error => {
                 console.log(error);
-                res.status(406).send({ error: true, errorMessage: 'ERR_DUP_ENTRY', userCreated: false, email: req.body.email, password: req.body.password});
+                res.status(406).send({ error: true, errorMessage: 'ERR_DUP_ENTRY', userCreated: false, email: req.body.email, password: req.body.password });
             });
     });
+
 
 usersRouter.route('/logout')
     .get((req, res, next) => {
         res.send({ loggedOut: true, error: false, errorMessage: 'ERR_NONE' })
 
     });
+
+
 module.exports = usersRouter;
