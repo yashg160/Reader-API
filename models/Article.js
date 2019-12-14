@@ -12,9 +12,8 @@ class Article extends Model { }
 
 Article.init({
     id: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-        autoIncrement: true
+        type: Sequelize.STRING4,
+        primaryKey: true
     },
     title: {
         type: Sequelize.STRING,
