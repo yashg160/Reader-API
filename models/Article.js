@@ -12,7 +12,7 @@ class Article extends Model { }
 
 Article.init({
     id: {
-        type: Sequelize.STRING4,
+        type: Sequelize.STRING,
         primaryKey: true
     },
     title: {
@@ -28,7 +28,8 @@ Article.init({
         type: Sequelize.NUMBER
     },
     createdBy: {
-        type: Sequelize.NUMBER
+        type: Sequelize.STRING,
+        allowNull: false
     }
 }, {
     sequelize,
