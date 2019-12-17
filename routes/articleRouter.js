@@ -65,7 +65,65 @@ async function insertArticleIntoUser(userId, newBlogId) {
     return newBlogId;
 }
 
+async function getArticleById(blogId) {
 
+    let article = await Article.findOne({
+        where: {
+            id: blogId
+        }
+    });
+
+    article = article.dataValues;
+
+    return article;
+}
+
+async function getArticleAuthor(article) {
+    const userId = article.createdBy;
+
+    let author = await User.findOne({
+        where: {
+            id: userId
+        }
+    })
+
+    author = author.dataValues;
+
+    return {author, article}
+}
+
+blogRouter.route('/')
+    .get((req, res, next) => {
+    
+        const blogId = req.query.blogId;
+        console.log(blogId);
+
+        getArticleById(blogId)
+            .then((article) => getArticleAuthor(article))
+            .then((response) => {
+
+                console.log(response);
+                const { author, article } = response;
+                
+                //Prepare the response to be sent
+                res.status(200).send({
+                    error: false,
+                    errorMessage: 'ERR_NONE',
+                    articleTitle: response.article.title,
+                    articleBody: article.body,
+                    articleReads: article.nReads,
+                    articleLikes: article.nLikes,
+                    authorName: `${author.firstName} ${author.lastName}`,
+                    authorAbout: author.about,
+                    authorAvatar: author.avatar
+                });
+                    
+            })
+            .catch(error => {
+                console.error(error);
+                res.status(200).send({ error: true, errorMessage: 'ERR_SOME', blogId: blogId });
+            });
+})
 
 blogRouter.route('/new')
     .post((req, res, next) => {

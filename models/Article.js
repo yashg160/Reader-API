@@ -21,10 +21,10 @@ Article.init({
     body: {
         type: Sequelize.TEXT
     },
-    reads: {
+    nReads: {
         type: Sequelize.NUMBER
     },
-    likes: {
+    nLikes: {
         type: Sequelize.NUMBER
     },
     createdBy: {
