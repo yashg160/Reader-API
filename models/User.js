@@ -8,41 +8,7 @@ const sequelize = new Sequelize({
     password: 'root_password'
 });
 
-class User extends Model { 
-    get fullName() {
-        return this.firstName + ' ' + this.lastName;
-    }
-
-    get emailId() {
-        return this.email;
-    }
-
-    get id() {
-        return this._id;
-    }
-
-    get avatar() {
-        return this.avatar;
-    }
-
-    get choices() {
-        return this.choices;
-    }
-
-    get profileCompleted() {
-        return this.profileCompleted;
-    }
-
-    get about() {
-        return this.about;
-    }
-
-    get writtenBlogs() {
-        return this.writtenBlogs;
-    }
-
-    //TODO: setters for properties
-}
+class User extends Model { }
 
 User.init({
     id: {

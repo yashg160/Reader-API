@@ -7,7 +7,7 @@ indexRouter.use(bodyParser.json());
 indexRouter.route('/')
     .get((req, res, next) => {
         res.statusCode = 200;
-        res.send('Congratulation. Server is running!');
+        res.send('Congratulations. Server is running!');
     });
 
 module.exports = indexRouter;

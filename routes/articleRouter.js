@@ -19,44 +19,68 @@ blogRouter.use(bodyParser.json());
 */
 
 async function publishNewArticle(body) {
-    return new Promise((resolve) => {
-        const { userId, articleTitle, articleBody, articleTags } = body;
+    const { userId, articleTitle, articleBody, articleTags } = body;
 
-        const blogId = crypto.randomBytes(10).toString('hex');
+    const blogId = crypto.randomBytes(10).toString('hex');
 
-        Article.create({
-            id: blogId,
-            title: articleTitle,
-            body: articleBody,
-            createdBy: userId,
-            createdAt: new Date(),
-            updateAt: new Date()
-        });
-
-        resolve(blogId);
+    await Article.create({
+        id: blogId,
+        title: articleTitle,
+        body: articleBody,
+        createdBy: userId,
+        createdAt: new Date(),
+        updateAt: new Date()
     });
 
+    return blogId;
 }
 
-async function addArticleToUser(userId, blogId) {
-    return new Promise((resolve) => {
-        const user = User.findOne({
-            where: {
-                id: userId
-            }
-        });
+async function insertArticleIntoUser(userId, newBlogId) {
+    
+    const user = await User.findOne({
+        where: {
+            id: userId
+        }
+    });
 
-        resolve(user);
-    })
+    const writtenBlogs = await user.dataValues.writtenBlogs;
+    let newWrittenBlogs = [];
+    
+    if (writtenBlogs == null) {
+        newWrittenBlogs.push(newBlogId);
+    }
+    else {
+        newWrittenBlogs = await writtenBlogs.slice();
+        newWrittenBlogs.push(newBlogId);
+    }
+
+    await User.update({
+        writtenBlogs: newWrittenBlogs
+    }, {
+        where: {
+            id: userId
+        }
+    });
+
+    return newBlogId;
 }
+
+
 
 blogRouter.route('/new')
     .post((req, res, next) => {
         //Here is the enpoint to publish a new article
+
         publishNewArticle(req.body)
-            .then((blogId) => addArticleToUser(req.body.userId, blogId))
-            .then((user) => console.log(user))
-            .catch((error) => console.error(error));
+            .then((blogId) => insertArticleIntoUser(req.body.userId, blogId))
+            .then((newBlogId, userId) => {
+                res.status(200).send({ error: false, errorMessage: 'ERR_NONE', newBlogId: newBlogId });
+            })
+            .catch((error) => {
+                console.error(error);
+                res.status(200).send({ error: true, errorMessage: 'ERR_SOME' });
+                //TODO: Handle different error conditions
+            });
     })
 
 module.exports = blogRouter;
