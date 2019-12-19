@@ -3,11 +3,12 @@ var bodyParser = require('body-parser');
 
 var User = require('../models/User');
 var Article = require('../models/Article');
+var Tags = require('../models/Tags');
 
 var crypto = require('crypto');
 
-var blogRouter = express.Router();
-blogRouter.use(bodyParser.json());
+var articleRouter = express.Router();
+articleRouter.use(bodyParser.json());
 
 /*
     The steps followed to save the article in the database
@@ -21,10 +22,11 @@ blogRouter.use(bodyParser.json());
 async function publishNewArticle(body) {
     const { userId, articleTitle, articleBody, articleTags } = body;
 
-    const blogId = crypto.randomBytes(10).toString('hex');
+    const articleId = crypto.randomBytes(10).toString('hex');
 
+    //Create the article in the articles table in database
     await Article.create({
-        id: blogId,
+        id: articleId,
         title: articleTitle,
         body: articleBody,
         createdBy: userId,
@@ -32,7 +34,48 @@ async function publishNewArticle(body) {
         updateAt: new Date()
     });
 
-    return blogId;
+    // Now check for each tag in the array from the front end
+    // Insert the article id into the table that matches the tag.
+
+    await articleTags.map(async (tag, index)  => {
+        console.log(tag, index);
+        switch (tag) {
+            case 'entertainment':
+                await Tags.Entertainment.create({
+                    articleId: articleId
+                });
+                break;
+            case 'faishon':
+                await Tags.Faishon.create({
+                    articleId: articleId
+                });
+                break;
+            case 'fitness':
+                await Tags.Fitness.create({
+                    articleId: articleId
+                });
+                break;
+            case 'finance':
+                await Tags.Finance.create({
+                    articleId: articleId
+                });
+                break;
+            case 'relationship':
+                await Tags.Relationship.create({
+                    articleId: articleId
+                });
+                break;
+            case 'technology':
+                await Tags.Technology.create({
+                    articleId: articleId
+                });
+                break;
+            default:
+                console.log(tag, index);
+        }
+    })
+
+    return articleId;
 }
 
 async function insertArticleIntoUser(userId, newBlogId) {
@@ -73,6 +116,7 @@ async function getArticleById(blogId) {
         }
     });
 
+    //TODO: Check for any errors
     article = article.dataValues;
 
     return article;
@@ -86,13 +130,13 @@ async function getArticleAuthor(article) {
             id: userId
         }
     })
-
+    //TODO: Check for any errors
     author = author.dataValues;
 
     return {author, article}
 }
 
-blogRouter.route('/')
+articleRouter.route('/')
     .get((req, res, next) => {
     
         const blogId = req.query.blogId;
@@ -125,7 +169,7 @@ blogRouter.route('/')
             });
 })
 
-blogRouter.route('/new')
+articleRouter.route('/new')
     .post((req, res, next) => {
         //Here is the enpoint to publish a new article
 
@@ -141,4 +185,4 @@ blogRouter.route('/new')
             });
     })
 
-module.exports = blogRouter;
+module.exports = articleRouter;
