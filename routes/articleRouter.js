@@ -5,6 +5,8 @@ var User = require('../models/User');
 var Article = require('../models/Article');
 var Tags = require('../models/Tags');
 
+var Sequelize = require('sequelize');
+
 var crypto = require('crypto');
 
 var articleRouter = express.Router();
@@ -136,6 +138,126 @@ async function getArticleAuthor(article) {
     return {author, article}
 }
 
+async function getUserChoices(userId) {
+
+    const user = await User.findOne({
+        where: {
+            id: userId
+        }
+    });
+
+    return user.dataValues.choices;
+}
+
+async function getRandomArticleIds(tags) {
+
+    let articleIds = {};
+
+    for (i = 0; i < tags.length; i++){
+
+        let ids = [];
+        let articles = null;
+
+        let tag = tags[i];
+
+        switch (tag) {
+            case 'entertainment':
+
+                articles = await Tags.Entertainment.findAll({ order: Sequelize.literal('rand()'), limit: 5 });
+                console.log(articles);
+
+                articles.forEach(async (article, i) => {
+                    await ids.push(article.dataValues.articleId);
+                });
+
+                articleIds.Entertainment = ids;
+                console.log(articleIds);
+
+                break;
+
+            case 'faishon':
+
+                articles = await Tags.Faishon.findAll({ order: Sequelize.literal('rand()'), limit: 5 });
+                console.log(articles);
+
+                articles.forEach(async (article, i) => {
+                    await ids.push(article.dataValues.articleId);
+                });
+
+                articleIds.Faishon = ids;
+                console.log(articleIds);
+
+                break;
+
+            case 'finance':
+                ids = [];
+
+                articles = await Tags.Finance.findAll({ order: Sequelize.literal('rand()'), limit: 5 });
+                console.log(articles);
+
+                articles.forEach(async (article, i) => {
+                    await ids.push(article.dataValues.articleId);
+                });
+
+                articleIds.Finance = ids;
+                console.log(articleIds);
+
+                break;
+
+            case 'fitness':
+                ids = [];
+
+                articles = await Tags.Fitness.findAll({ order: Sequelize.literal('rand()'), limit: 5 });
+                console.log(articles);
+
+                articles.forEach(async (article, i) => {
+                    await ids.push(article.dataValues.articleId);
+                });
+
+                articleIds.Fitness = ids;
+                console.log(articleIds);
+
+                break;
+
+            case 'relationship':
+                ids = [];
+
+                articles = await Tags.Relationship.findAll({ order: Sequelize.literal('rand()'), limit: 5 });
+                console.log(articles);
+
+                articles.forEach(async (article, i) => {
+                    await ids.push(article.dataValues.articleId);
+                });
+
+                articleIds.Relationship = ids;
+                console.log(articleIds);
+
+                break;
+
+            case 'technology':
+                ids = [];
+
+                articles = await Tags.Technology.findAll({ order: Sequelize.literal('rand()'), limit: 5 });
+                console.log(articles);
+
+                articles.forEach(async (article, i) => {
+                    await ids.push(article.dataValues.articleId);
+                });
+
+                articleIds.Technology = ids;
+                console.log(articleIds);
+
+                break;
+
+            default:
+                console.log(`${tag} did not match any values`);
+        }
+    }
+
+    return articleIds;
+    
+}
+
 articleRouter.route('/')
     .get((req, res, next) => {
     
@@ -170,6 +292,7 @@ articleRouter.route('/')
 })
 
 articleRouter.route('/new')
+    
     .post((req, res, next) => {
         //Here is the enpoint to publish a new article
 
@@ -183,6 +306,22 @@ articleRouter.route('/new')
                 res.status(200).send({ error: true, errorMessage: 'ERR_SOME' });
                 //TODO: Handle different error conditions
             });
-    })
+    });
+
+articleRouter.route('/forUser')
+    .get((req, res, next) => {
+    
+        const userId = req.query.id;
+        console.log(userId);
+
+        getUserChoices(userId)
+            .then((tags) => getRandomArticleIds(tags))
+            .then((articleIds) => {
+                console.log('DonE!');
+                res.send(articleIds);
+            })
+            .catch(error => console.error(error));
+    });
+
 
 module.exports = articleRouter;
