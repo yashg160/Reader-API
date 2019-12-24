@@ -22,7 +22,7 @@ articleRouter.use(bodyParser.json());
 */
 
 async function publishNewArticle(body) {
-    const { userId, articleTitle, articleBody, articleTags } = body;
+    const { userId, articleTitle, articleBody, articleTags, articleImage } = body;
 
     const articleId = crypto.randomBytes(10).toString('hex');
 
@@ -31,6 +31,7 @@ async function publishNewArticle(body) {
         id: articleId,
         title: articleTitle,
         body: articleBody,
+        image: articleImage,
         createdBy: userId,
         createdAt: new Date(),
         updateAt: new Date()
@@ -163,7 +164,7 @@ async function getRandomArticleIds(tags) {
         switch (tag) {
             case 'entertainment':
 
-                articles = await Tags.Entertainment.findAll({ order: Sequelize.literal('rand()'), limit: 5 });
+                articles = await Tags.Entertainment.findAll({ order: Sequelize.literal('rand()'), limit: 10 });
 
                 articles.forEach(async (article, i) => {
                     await ids.push(article.dataValues.articleId);
@@ -268,7 +269,11 @@ async function getArticles(articleIds, userId, callback) {
             });
 
             if (article) {
-                const content = article.dataValues;
+                let content = article.dataValues;
+
+                //IMP: Call .toString() on the image attribute of the content object
+                content.image = content.image.toString();
+
                 const createdBy = content.createdBy;
 
                 if (content.createdBy != userId) {
@@ -285,7 +290,7 @@ async function getArticles(articleIds, userId, callback) {
                     content.author = await author;
 
                     articles[tag].push(content);
-                    console.log(articles);
+                    //console.log(articles);
                 }
             }
         }
@@ -306,6 +311,7 @@ articleRouter.route('/')
 
                 console.log(response);
                 const { author, article } = response;
+                //console.log(article.image.toString());
                 
                 //Prepare the response to be sent
                 res.status(200).send({
@@ -313,6 +319,7 @@ articleRouter.route('/')
                     errorMessage: 'ERR_NONE',
                     articleTitle: response.article.title,
                     articleBody: article.body,
+                    articleImage: article.image.toString(),
                     articleReads: article.nReads,
                     articleLikes: article.nLikes,
                     authorName: `${author.firstName} ${author.lastName}`,
@@ -325,7 +332,7 @@ articleRouter.route('/')
                 console.error(error);
                 res.status(200).send({ error: true, errorMessage: 'ERR_SOME', blogId: blogId });
             });
-})
+    });
 
 articleRouter.route('/new')
     
@@ -335,7 +342,10 @@ articleRouter.route('/new')
         publishNewArticle(req.body)
             .then((blogId) => insertArticleIntoUser(req.body.userId, blogId))
             .then((newBlogId, userId) => {
-                res.status(200).send({ error: false, errorMessage: 'ERR_NONE', newBlogId: newBlogId });
+                res
+                    .status(200)
+                    .header('Access-Control-Allow-Origin', '*')
+                    .send({ error: false, errorMessage: 'ERR_NONE', newBlogId: newBlogId });
             })
             .catch((error) => {
                 console.error(error);
@@ -358,6 +368,7 @@ articleRouter.route('/forUser')
             .then((tags) => getRandomArticleIds(tags))
             .then((articleIds) => {
                 getArticles(articleIds, userId, articles => {
+                    //console.log(articles);
                     res.send(articles);
                 });
                 //console.log(`Article ids: ${articleIds}`);

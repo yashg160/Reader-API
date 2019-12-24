@@ -21,6 +21,9 @@ Article.init({
     body: {
         type: Sequelize.TEXT
     },
+    image: {
+        type: Sequelize.BLOB('long')
+    },
     nReads: {
         type: Sequelize.NUMBER
     },
