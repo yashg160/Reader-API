@@ -18,15 +18,10 @@ async function getUserById(userId) {
 
     let content = rawUser.dataValues;
 
-    let user = {};
+    content.avatar = content.avatar.toString();
+    content.name = content.firstName + ' ' + content.lastName;
 
-    var name = content.firstName + content.lastName;
-    var avatar = content.avatar ? content.avatar.toString() : null;
-
-    user.name = name;
-    user.avatar = avatar;
-
-    return user;
+    return content;
 }
 
 async function createUser(body) {
@@ -64,22 +59,41 @@ async function updateUser(body) {
         const { id, name, about, choices, avatar } = body;
 
         //Split the first name and last name
-        const nameSplit = name.split(' ');
-        const firstName = nameSplit[0];
-        const lastName = nameSplit[1];
+        let nameSplit, firstName, lastName;
 
-        const user = User.update({
-            firstName: firstName,
-            lastName: lastName,
-            about: about,
-            avatar: avatar,
-            choices: choices,
-            updatedAt: new Date()
-        }, {
-            where: {id: id}
-        });
-        resolve(user);
-    })
+        nameSplit = name.split(' ');
+        firstName = nameSplit[0];
+        lastName = nameSplit[1];
+        
+        if (avatar) {
+            const user = User.update({
+                firstName: firstName,
+                lastName: lastName,
+                about: about,
+                avatar: avatar,
+                choices: choices,
+                updatedAt: new Date()
+            }, {
+                where: { id: id }
+            });
+            resolve(user);
+        }
+
+        else {
+
+            const user = User.update({
+                firstName: firstName,
+                lastName: lastName,
+                about: about,
+                choices: choices,
+                updatedAt: new Date()
+            }, {
+                where: { id: id }
+            });
+            resolve(user);
+        }
+
+    });
 }
 
 usersRouter.route('/')
@@ -89,13 +103,14 @@ usersRouter.route('/')
 
         getUserById(userId)
             .then((user) => {
-                res.send({user});
+                res.send({ user });
             })
             .catch(error => {
                 console.error(error);
                 res.send({ error: true, errorMessage: 'ERR_SOME' });
-        })
-})
+            })
+    });
+
 usersRouter.route('/signin')
     .get((req, res, next) => {
 
