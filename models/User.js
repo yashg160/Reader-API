@@ -36,7 +36,7 @@ User.init({
         type: Sequelize.BOOLEAN
     },
     avatar: {
-        type: Sequelize.BLOB
+        type: Sequelize.BLOB('medium')
     },
     writtenBlogs: {
         type: Sequelize.JSON

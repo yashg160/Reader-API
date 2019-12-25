@@ -8,7 +8,28 @@ usersRouter.use(bodyParser.json());
 
 //Create helper functions to communicate with thwe database using promises
 
-async function createUser(body){
+async function getUserById(userId) {
+
+    let rawUser = await User.findOne({
+        where: {
+            id: userId
+        }
+    });
+
+    let content = rawUser.dataValues;
+
+    let user = {};
+
+    var name = content.firstName + content.lastName;
+    var avatar = content.avatar ? content.avatar.toString() : null;
+
+    user.name = name;
+    user.avatar = avatar;
+
+    return user;
+}
+
+async function createUser(body) {
     return new Promise(resolve => {
 
         const id = crypto.randomBytes(10).toString('hex');
@@ -40,7 +61,7 @@ async function getUser(query) {
 async function updateUser(body) {
     return new Promise(resolve => {
         console.log(body);
-        const { id, name, about, choices } = body;
+        const { id, name, about, choices, avatar } = body;
 
         //Split the first name and last name
         const nameSplit = name.split(' ');
@@ -51,6 +72,7 @@ async function updateUser(body) {
             firstName: firstName,
             lastName: lastName,
             about: about,
+            avatar: avatar,
             choices: choices,
             updatedAt: new Date()
         }, {
@@ -60,6 +82,20 @@ async function updateUser(body) {
     })
 }
 
+usersRouter.route('/')
+    .get((req, res, next) => {
+        const userId = req.query.userId;
+        console.log(req.query);
+
+        getUserById(userId)
+            .then((user) => {
+                res.send({user});
+            })
+            .catch(error => {
+                console.error(error);
+                res.send({ error: true, errorMessage: 'ERR_SOME' });
+        })
+})
 usersRouter.route('/signin')
     .get((req, res, next) => {
 
