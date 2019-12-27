@@ -111,11 +111,11 @@ async function insertArticleIntoUser(userId, newBlogId) {
     return newBlogId;
 }
 
-async function getArticleById(blogId) {
+async function getArticleById(articleId) {
 
     let article = await Article.findOne({
         where: {
-            id: blogId
+            id: articleId
         }
     });
 
@@ -139,173 +139,142 @@ async function getArticleAuthor(article) {
     return {author, article}
 }
 
-async function getUserChoices(userId) {
+async function getRandomArticleIds() {
 
-    const user = await User.findOne({
-        where: {
-            id: userId
-        }
-    });
+    let articleIds = {
 
-    return user.dataValues.choices;
-}
+        Entertainment: [],
+        Faishon: [],
+        Finance: [],
+        Fitness: [],
+        Relationship: [],
+        Technology: []
+    };
 
-async function getRandomArticleIds(tags) {
+    // Get articles for each individual category
 
-    let articleIds = {};
+    // Entertainment
+    let ids = await Tags.Entertainment.findAll({ order: Sequelize.literal('rand()'), limit: 10 });
+    
+    for (i = 0; i < ids.length; i++){
+        await articleIds['Entertainment'].push(ids[i].dataValues.articleId);
+        console.log(ids[i].dataValues.articleId);
+    }
 
-    for (i = 0; i < tags.length; i++){
+    // Finance
+    ids = await Tags.Finance.findAll({ order: Sequelize.literal('rand()'), limit: 10 });
 
-        let ids = [];
-        let articles = null;
+    for (i = 0; i < ids.length; i++) {
+        await articleIds['Finance'].push(ids[i].dataValues.articleId);
+    }
 
-        let tag = tags[i];
+    // Fitness
+    ids = await Tags.Fitness.findAll({ order: Sequelize.literal('rand()'), limit: 10 });
 
-        switch (tag) {
-            case 'entertainment':
+    for (i = 0; i < ids.length; i++) {
+        await articleIds['Fitness'].push(ids[i].dataValues.articleId);
+    }
 
-                articles = await Tags.Entertainment.findAll({ order: Sequelize.literal('rand()'), limit: 10 });
+    // Faishon
+    ids = await Tags.Faishon.findAll({ order: Sequelize.literal('rand()'), limit: 10 });
 
-                articles.forEach(async (article, i) => {
-                    await ids.push(article.dataValues.articleId);
-                });
+    for (i = 0; i < ids.length; i++) {
+        await articleIds['Faishon'].push(ids[i].dataValues.articleId);
+    }
 
-                articleIds.Entertainment = ids;
+    // Relationship
+    ids = await Tags.Relationship.findAll({ order: Sequelize.literal('rand()'), limit: 10 });
 
-                break;
+    for (i = 0; i < ids.length; i++) {
+        await articleIds['Relationship'].push(ids[i].dataValues.articleId);
+    }
 
-            case 'faishon':
+    // Technology
+    ids = await Tags.Technology.findAll({ order: Sequelize.literal('rand()'), limit: 10 });
 
-                articles = await Tags.Faishon.findAll({ order: Sequelize.literal('rand()'), limit: 5 });
-
-                articles.forEach(async (article, i) => {
-                    await ids.push(article.dataValues.articleId);
-                });
-
-                articleIds.Faishon = ids;
-
-                break;
-
-            case 'finance':
-                ids = [];
-
-                articles = await Tags.Finance.findAll({ order: Sequelize.literal('rand()'), limit: 5 });
-
-                articles.forEach(async (article, i) => {
-                    await ids.push(article.dataValues.articleId);
-                });
-
-                articleIds.Finance = ids;
-
-                break;
-
-            case 'fitness':
-                ids = [];
-
-                articles = await Tags.Fitness.findAll({ order: Sequelize.literal('rand()'), limit: 5 });
-
-                articles.forEach(async (article, i) => {
-                    await ids.push(article.dataValues.articleId);
-                });
-
-                articleIds.Fitness = ids;
-
-                break;
-
-            case 'relationship':
-                ids = [];
-
-                articles = await Tags.Relationship.findAll({ order: Sequelize.literal('rand()'), limit: 5 });
-
-                articles.forEach(async (article, i) => {
-                    await ids.push(article.dataValues.articleId);
-                });
-
-                articleIds.Relationship = ids;
-
-                break;
-
-            case 'technology':
-                ids = [];
-
-                articles = await Tags.Technology.findAll({ order: Sequelize.literal('rand()'), limit: 5 });
-
-                articles.forEach(async (article, i) => {
-                    await ids.push(article.dataValues.articleId);
-                });
-
-                articleIds.Technology = ids;
-
-                break;
-
-            default:
-                console.log(`${tag} did not match any values`);
-        }
+    for (i = 0; i < ids.length; i++) {
+        await articleIds['Technology'].push(ids[i].dataValues.articleId);
     }
 
     return articleIds;
     
 }
 
-async function getArticles(articleIds, userId, callback) {
-    
-    let articles = {};
+async function getArticles(articleIds, userId) {
+    console.log('getArticles function \n');
 
-    for (var tag in articleIds) {
-        console.log(tag);
+    let articles = {
+        'Entertainment': [],
+        'Finance': [],
+        'Fitness': [],
+        'Faishon': [],
+        'Relationship': [],
+        'Technology': []
+    };
 
-        articles[tag] = [];
+    const tags = Object.keys(articleIds);
 
-        const ids = articleIds[tag];
+    //Get the articles for each category 
+
+    for (j = 0; j < tags.length; j++){
+        const tag = tags[j];
+        console.log(tag+'\n');
+
+        let ids = articleIds[tag];
 
         for (i = 0; i < ids.length; i++) {
-
-            const articleId = ids[i];
-
-            const article = await Article.findOne({
+            const id = ids[i];
+            let article = await Article.findOne({
                 where: {
-                    id: articleId
+                    id: id
                 }
             });
 
             if (article) {
                 let content = article.dataValues;
 
-                //IMP: Call .toString() on the image attribute of the content object
-                content.image = content.image.toString();
-
                 const createdBy = content.createdBy;
 
                 if (content.createdBy != userId) {
 
-                    let authorData = await User.findOne({
-                        attributes: ['firstName', 'lastName', 'avatar'],
+                    let rawAuthor = await User.findOne({
+                        attributes: ['id', 'firstName', 'lastName', 'avatar'],
                         where: {
                             id: createdBy
                         }
                     });
 
-                    const author = await authorData.dataValues;
+                    //IMP: Call .toString() on the image attribute of the content object
+                    content.image = await content.image.toString();
+                    
+                    let author = {};
 
-                    content.author = await author;
+                    let authorData = await rawAuthor.dataValues;
+                    console.log(authorData.id); 
+                    
+                    author.name = authorData.firstName + ' ' + authorData.lastName;
 
-                    articles[tag].push(content);
-                    //console.log(articles);
+                    if(authorData.avatar)
+                        author.avatar = authorData.avatar.toString();
+
+                    content.author = author;
+
+                    await articles[tag].push(content);
                 }
             }
         }
     }
 
-    callback(articles);
+    return articles;
 }
 
 articleRouter.route('/')
     .get((req, res, next) => {
     
-        const blogId = req.query.blogId;
-        console.log(blogId);
+        const articleId = req.query.articleId;
+        console.log(articleId);
 
-        getArticleById(blogId)
+        getArticleById(articleId)
             .then((article) => getArticleAuthor(article))
             .then((response) => {
 
@@ -322,15 +291,17 @@ articleRouter.route('/')
                     articleImage: article.image.toString(),
                     articleReads: article.nReads,
                     articleLikes: article.nLikes,
-                    authorName: `${author.firstName} ${author.lastName}`,
-                    authorAbout: author.about,
-                    authorAvatar: author.avatar
+                    author: {
+                        authorName: `${author.firstName} ${author.lastName}`,
+                        authorAbout: author.about,
+                        authorAvatar: author.avatar ? author.avatar.toString() : null
+                    }                 
                 });
                     
             })
             .catch(error => {
                 console.error(error);
-                res.status(200).send({ error: true, errorMessage: 'ERR_SOME', blogId: blogId });
+                res.status(200).send({ error: true, errorMessage: 'ERR_SOME', articleId: articleId });
             });
     });
 
@@ -364,15 +335,10 @@ articleRouter.route('/forUser')
         const userId = req.query.id;
         console.log(userId);
 
-        getUserChoices(userId)
-            .then((tags) => getRandomArticleIds(tags))
-            .then((articleIds) => {
-                getArticles(articleIds, userId, articles => {
-                    //console.log(articles);
-                    res.send(articles);
-                });
-                //console.log(`Article ids: ${articleIds}`);
-               
+        getRandomArticleIds()
+            .then((articleIds) => getArticles(articleIds, userId))
+            .then((articles) => {
+                res.send(articles);
             })
             .catch(error => console.error(error));
     });

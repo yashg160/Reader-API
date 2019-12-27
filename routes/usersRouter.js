@@ -11,15 +11,20 @@ usersRouter.use(bodyParser.json());
 async function getUserById(userId) {
 
     let rawUser = await User.findOne({
+        attributes: ['id', 'firstName', 'lastName', 'avatar'],
         where: {
             id: userId
         }
     });
 
-    let content = rawUser.dataValues;
+    let user = rawUser.dataValues;
+    let content = {};
 
-    content.avatar = content.avatar.toString();
-    content.name = content.firstName + ' ' + content.lastName;
+    content.id = user.id;
+    content.name = user.firstName + ' ' + user.lastName;
+
+    if(user.avatar)
+        content.avatar = user.avatar.toString();
 
     return content;
 }
