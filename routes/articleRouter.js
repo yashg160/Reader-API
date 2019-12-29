@@ -22,7 +22,7 @@ articleRouter.use(bodyParser.json());
 */
 
 async function publishNewArticle(body) {
-    const { userId, articleTitle, articleBody, articleTags, articleImage } = body;
+    const { userId, articleTitle, articleBody, articleTag, articleImage } = body;
 
     const articleId = crypto.randomBytes(10).toString('hex');
 
@@ -39,44 +39,40 @@ async function publishNewArticle(body) {
 
     // Now check for each tag in the array from the front end
     // Insert the article id into the table that matches the tag.
-
-    await articleTags.map(async (tag, index)  => {
-        console.log(tag, index);
-        switch (tag) {
-            case 'entertainment':
-                await Tags.Entertainment.create({
-                    articleId: articleId
-                });
-                break;
-            case 'faishon':
-                await Tags.Faishon.create({
-                    articleId: articleId
-                });
-                break;
-            case 'fitness':
-                await Tags.Fitness.create({
-                    articleId: articleId
-                });
-                break;
-            case 'finance':
-                await Tags.Finance.create({
-                    articleId: articleId
-                });
-                break;
-            case 'relationship':
-                await Tags.Relationship.create({
-                    articleId: articleId
-                });
-                break;
-            case 'technology':
-                await Tags.Technology.create({
-                    articleId: articleId
-                });
-                break;
-            default:
-                console.log(tag, index);
-        }
-    })
+    switch (articleTag) {
+        case 'entertainment':
+            await Tags.Entertainment.create({
+                articleId: articleId
+            });
+            break;
+        case 'faishon':
+            await Tags.Faishon.create({
+                articleId: articleId
+            });
+            break;
+        case 'fitness':
+            await Tags.Fitness.create({
+                articleId: articleId
+            });
+            break;
+        case 'finance':
+            await Tags.Finance.create({
+                articleId: articleId
+            });
+            break;
+        case 'relationship':
+            await Tags.Relationship.create({
+                articleId: articleId
+            });
+            break;
+        case 'technology':
+            await Tags.Technology.create({
+                articleId: articleId
+            });
+            break;
+        default:
+            console.log(articleTag);
+    }
 
     return articleId;
 }
@@ -173,6 +169,7 @@ async function getRandomArticleIds() {
 
     for (i = 0; i < ids.length; i++) {
         await articleIds['Fitness'].push(ids[i].dataValues.articleId);
+        console.log(ids[i].dataValues.articleId);
     }
 
     // Faishon

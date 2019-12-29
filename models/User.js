@@ -40,9 +40,6 @@ User.init({
     },
     writtenBlogs: {
         type: Sequelize.JSON
-    },
-    choices: {
-        type: Sequelize.JSON
     }
 }, {
     sequelize, 

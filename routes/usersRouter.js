@@ -11,20 +11,27 @@ usersRouter.use(bodyParser.json());
 async function getUserById(userId) {
 
     let rawUser = await User.findOne({
-        attributes: ['id', 'firstName', 'lastName', 'avatar'],
         where: {
             id: userId
         }
     });
 
     let user = rawUser.dataValues;
-    let content = {};
+    let content = {
+        id: '',
+        name: '',
+        avatar: '',
+        about: ''
+    };
 
     content.id = user.id;
     content.name = user.firstName + ' ' + user.lastName;
+    content.about = user.about;
 
-    if(user.avatar)
-        content.avatar = user.avatar.toString();
+    if (user.avatar != null) {
+        const imgString = await user.avatar.toString();;
+        content.avatar = imgString;
+    }
 
     return content;
 }
@@ -61,7 +68,7 @@ async function getUser(query) {
 async function updateUser(body) {
     return new Promise(resolve => {
         console.log(body);
-        const { id, name, about, choices, avatar } = body;
+        const { id, name, about, avatar } = body;
 
         //Split the first name and last name
         let nameSplit, firstName, lastName;
@@ -76,7 +83,6 @@ async function updateUser(body) {
                 lastName: lastName,
                 about: about,
                 avatar: avatar,
-                choices: choices,
                 updatedAt: new Date()
             }, {
                 where: { id: id }
@@ -90,7 +96,6 @@ async function updateUser(body) {
                 firstName: firstName,
                 lastName: lastName,
                 about: about,
-                choices: choices,
                 updatedAt: new Date()
             }, {
                 where: { id: id }
@@ -108,6 +113,7 @@ usersRouter.route('/')
 
         getUserById(userId)
             .then((user) => {
+                console.log(user.about, user.name, user.id);
                 res.send({ user });
             })
             .catch(error => {
