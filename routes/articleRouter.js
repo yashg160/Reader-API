@@ -250,6 +250,7 @@ async function getArticles(articleIds, userId) {
                     console.log(authorData.id); 
                     
                     author.name = authorData.firstName + ' ' + authorData.lastName;
+                    author.id = authorData.id;
 
                     if(authorData.avatar)
                         author.avatar = authorData.avatar.toString();
@@ -321,10 +322,6 @@ articleRouter.route('/new')
                 //TODO: Handle different error conditions
             });
     });
-
-
-
-
 
 articleRouter.route('/forUser')
     .get((req, res, next) => {

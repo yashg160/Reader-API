@@ -38,7 +38,7 @@ User.init({
     avatar: {
         type: Sequelize.BLOB('medium')
     },
-    writtenBlogs: {
+    writtenArticles: {
         type: Sequelize.JSON
     }
 }, {

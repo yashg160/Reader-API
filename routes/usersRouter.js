@@ -1,6 +1,7 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var User = require('../models/User');
+var Article = require('../models/Article');
 var crypto = require('crypto');
 
 var usersRouter = express.Router();
@@ -34,6 +35,42 @@ async function getUserById(userId) {
     }
 
     return content;
+}
+
+async function getUserWrittenArticles(userId) {
+    let rawArticleIds = await User.findOne({
+        attributes: ['writtenArticles'],
+        where: {
+            id: userId
+        }
+    });
+
+    const articleIds = rawArticleIds.dataValues.writtenArticles; // Array
+    
+    let articles = []; // This will store the articles as objects to be returned
+
+    for (i = 0; i < articleIds.length; i++){
+        let id = articleIds[i];
+        let article = {};
+
+        let rawArticle = await Article.findOne({
+            where: {
+                id: id
+            }
+        });
+
+        if (rawArticle) {
+            article.title = rawArticle.dataValues.title;
+            article.id = rawArticle.dataValues.id;
+            article.image = rawArticle.dataValues.image.toString();
+            article.body = rawArticle.dataValues.body;
+            article.likes = rawArticle.dataValues.nLikes;
+            article.reads = rawArticle.dataValues.nReads;
+
+            articles.push(article);
+        }
+    }
+    return articles;
 }
 
 async function createUser(body) {
@@ -120,6 +157,24 @@ usersRouter.route('/')
                 console.error(error);
                 res.send({ error: true, errorMessage: 'ERR_SOME' });
             })
+    });
+usersRouter.route('/writtenArticles')
+    .get((req, res, next) => {
+        console.log(req.query);
+        const userId = req.query.userId;
+
+        let articles = null;
+
+        getUserWrittenArticles(userId)
+            .then((as) => {
+                getUserById(userId);
+                articles = as;
+            })
+            .then((author) => res.send({ error: false, errorMessage: 'ERR_NONE', articles: articles, author: author }))
+            .catch((error) => {
+                console.log(error);
+                res.send({ error: true, errorMessage: 'ERR_SOME', userId: userId});
+            });
     });
 
 usersRouter.route('/signin')
