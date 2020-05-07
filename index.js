@@ -1,7 +1,5 @@
 var app = require('./app');
 var http = require('http');
-var fs = require('fs');
-var mysql = require('mysql2');
 var Sequelize = require('sequelize');
 
 
