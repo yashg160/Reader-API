@@ -2,12 +2,9 @@ var app = require('./app');
 var http = require('http');
 var Sequelize = require('sequelize');
 
-
-
-const port = 3001;
+const port = process.env.PORT || 3001;
 
 app.set('port', port);
-app.set('secPort', port + 443);
 
 /* const db = mysql.createConnection({
     host: 'localhost',
