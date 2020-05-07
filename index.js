@@ -13,16 +13,23 @@ app.set('secPort', port + 443);
 
 /* const db = mysql.createConnection({
     host: 'localhost',
-    user: 'root',
-    password: 'root_password',
-    database: 'reader'
-}); */
-const sequelize = new Sequelize({
+    user: 'yash',
+    password: 'password',
     database: 'reader',
-    username: 'root',
-    password: 'root_password',
-    dialect: 'mysql'
+    port: 3306
 });
+console.log("Connection object created")
+db.connect(error => {
+    if(error) console.error(error);
+    else console.info("Connected to database");
+}); */
+/* const sequelize = new Sequelize("reader", "yash", "password", {
+    host: "localhost",
+    dialect: "mysql"
+});
+ */
+
+const sequelize = new Sequelize("mysql://b6b61469288269:a42efa6b@us-cdbr-east-06.cleardb.net/heroku_e2a64bd5a684d4a?reconnect=true");
 
 /* db.connect((err) => {
     if (err) {
